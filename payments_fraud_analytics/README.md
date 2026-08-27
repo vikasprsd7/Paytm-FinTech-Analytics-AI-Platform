@@ -34,8 +34,8 @@ payments_fraud_analytics/
 The synthetic data generator creates a payments ecosystem consisting of gateway_export, merchants, users, and ledger.
 - **Merchants**: The dataset contains ***40 merchants.***
 - **Users**: The dataset contains ***350 established users.***
-- **Ledger**: The dataset consists of ***547 transactions details.***
-- **gateway_export**: The dataset consists of ***deliberately-discrepant*** gateway export (~5% missing, ~3% amount-mismatched, ~2% extra, ~2% status-differing, applied on top of the 547-row ledger).
+- **Ledger**: The dataset consists of ***547 transactions records.***
+- **gateway_export**: The dataset consists of ***deliberately discrepant*** gateway export dataset (~5% missing, ~3% amount-mismatched, ~2% extra, ~2% status-differing, applied on top of the 547-row ledger).
 
 ## 2. Excel Merchant Workbook
   - The file: **merchant_workbook.xlsx** contains merchant-level payment analysis.
@@ -44,7 +44,7 @@ The synthetic data generator creates a payments ecosystem consisting of gateway_
     - **Is_First_Merchant_Day (a COUNTIFS-based 1/0 flag marking the first transaction for each merchant+day pair)** this is what lets the workbook compute **"unique days"** without needing array formulas or UNIQUE()).
   - Sheet **Fee**: a horizontal (one-row-per-field) MDR-style fee table (payment_method across row 1, MDR Fee % across row 2).
   - Sheet **Merchant_Day_Table**: **(the pivot table)** one row per merchant_id + txn_date combination that actually occurs in the ledger, with Total Amount and Transaction_Count columns (header starts at row 3).
-  - **Transaction_view**: one row per transaction, with the **VLOOKUP, HLOOKUP, and classification columns.
+  - **Transaction_view**: one row per transaction, containing **VLOOKUP, HLOOKUP, and classification columns**.
   - **Merchant_Status**: A single combined sheet with **total amount + count by merchant × status** and the **count-vs-count-unique** comparison for all 40 merchants (well over the required minimum of 5), appended as extra columns on the same rows rather than spliting into two sheets.
 
 - ### Design Decisions
@@ -74,7 +74,7 @@ The synthetic data generator creates a payments ecosystem consisting of gateway_
       - **Repeat Day Ratio:** Transactions divided by unique transaction days.
       - **Ratio close to 1 indicates little same-day repeat activity**.
       - **Higher ratios indicate more transactions clustered on the same day**.
-      - **Unique-day counts are calculated using the Is_First_Merchant_Day helper flag, avoiding the need for UNIQUE() or COUNTUNIQUE() functions.
+      - **Unique-day counts** are calculated using the Is_First_Merchant_Day helper flag, avoiding the need for UNIQUE() or COUNTUNIQUE() functions.
   - **Formula-Based Pivot Tables**: All summary tables were built using SUMIFS and COUNTIFS formulas instead of Excel's native PivotTable feature.
     - This approach was chosen because it works reliably with the automated workbook generation process.
     - Formula-based summaries update automatically whenever the source data changes.
@@ -106,13 +106,13 @@ The synthetic data generator creates a payments ecosystem consisting of gateway_
     - Flags users with multiple transactions occurring in the same short interval.
     - Expected Result: All 8 seeded velocity-attack clusters are detected. Each cluster contains four closely spaced card transactions.
 
-## 3. Executive Summary: Payment Reconciliation Analysis
+## 4. Executive Summary: Payment Reconciliation Analysis
 
-An **automated reconciliation workflow** was implemented using **Python (pandas)** to compare the **internal system ledger** against **external payment gateway export** records. The analysis processed **547 internal ledger** records against **530 gateway export* records. The automated **reconcile_payments()** function evaluates data across set-difference operations and inner-join pairwise comparisons to isolate discrepancies into four distinct categories:
+An **automated reconciliation workflow** was implemented using **Python (pandas)** to compare the **internal system ledger** against **external payment gateway export** records. The analysis processed **547 internal ledger** records against **530 gateway export** records. The automated **reconcile_payments()** function evaluates data across set-difference operations and inner-join pairwise comparisons to isolate discrepancies into four distinct categories:
   - **Missing in Gateway** (27 transactions / 4.9% of ledger): Transactions recorded internally that are absent from the payment gateway export.
   - **Missing in Ledger / Extra in Gateway** (10 transactions / 1.8% of ledger): Transactions present in the gateway export but unrecorded in the internal ledger.
   - **Amount Mismatches** (16 transactions / 2.9% of ledger): Shared transactions where recorded transaction values (amount_inr) differ between sources, showing variance ranges from -100 to +100 INR.
-  - **Status Mismatches** (9 transactions / 1.6% of ledger): Shared transactions with conflicting state records, predominantly consisting of transactions marked as captured or chargeback internally but logged as failed at the gateway.
+  - **Status Mismatches** (9 transactions / 1.6% of ledger): Shared transactions with conflicting state records, transactions with conflicting status values between the ledger and gateway export.
   - ### Final Result
       -  **Missing in gateway (present in ledger, absent from gateway):** 27  (4.9% of ledger)
       -  **Missing in ledger (extra in gateway):**                        10  (1.8% of ledger)
@@ -121,10 +121,14 @@ An **automated reconciliation workflow** was implemented using **Python (pandas)
         
 The reconciliation process successfully highlighted operational data gaps across both platforms.
 
-## 4. Dashboard Interpretations
+## 5. Dashboard Interpretations
   
 All charts are saved as PNG images in **"dashboard_charts/"** . No chart is a live/interactive object — each is a static image, including the details table.
-  
+
+  - **Layer 1 — Headline Scorecards:** The success rate of 85.6% is strong, but the 5.12% chargeback ratio is relatively high and suggests elevated fraud or dispute risk. Meanwhile, the 90.5% reconciliation match rate indicates that about 1 in 10 transactions have amount or status discrepancies between systems. These metrics measure different aspects of performance: success rate reflects completed payments, while match rate reflects agreement between the ledger and gateway records.
+  - **Layer 2 — Trends:** Daily GMV shows significant fluctuations with no clear trend across the 30-day period. A few peak days, such as January 6 and January 11, generate nearly twice the average GMV, likely driven by several high-value transactions. Chargebacks spike on January 23, reflecting the seeded fraud patterns. With a correlation of 0.00 between daily GMV and chargeback count, chargebacks appear to occur independently of overall transaction volume.
+  - **Layer 3 — Breakdown:** UPI contributes ₹158,895 (54.7%) of total GMV, exceeding the combined contribution of all other payment methods. Travel, grocery, and ecommerce lead merchant categories, while recharge lags behind. This strong dependence on UPI means any disruption to UPI processing could significantly impact overall platform GMV.
+  - **Layer 4 — Details:** Seven of the top 10 merchants exceed the 1% chargeback threshold and are flagged. Merchant_027 and Merchant_029 show the highest rates at about 16–19%. This indicates chargeback risk is concentrated among high-volume merchants, while Merchant_016 and Merchant_009 remain unflagged at 0%.
 
 
 
