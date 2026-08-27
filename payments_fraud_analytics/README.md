@@ -81,52 +81,50 @@ The synthetic data generator creates a payments ecosystem consisting of gateway_
 
 ## 3. SQL Query Results
 
+  - **Query 1: Top High-Value, High-Risk Captured Transactions**
+     - Returned the top 10 captured transactions with risk_score >= 70. Results are ordered by transaction amount in descending order. Used to identify large, potentially risky payments.
+  - **Query 1b: Distinct Payment Methods in High-Risk Transactions**
+    - Returned the unique payment methods used by transactions with risk_score >= 70. Demonstrates usage of the DISTINCT clause.
+  - **Query 2: Merchants with More Than Two Chargebacks**
+    - Returned merchants having more than two chargeback transactions. Shows chargeback count and total chargeback amount per merchant. Used for identifying merchants with elevated dispute activity.
+  - **Query 3: Chargeback Transactions with Merchant Details**
+    -  Joined chargeback transactions to merchant information. Displays merchant name, category, and region along with transaction details. Useful for investigating dispute patterns across merchant segments.
+  - **Query 4: User Transaction Summary**
+    - Returned all users, including users with no transactions. Shows transaction count and total spending per user. Uses a LEFT JOIN to ensure complete user coverage.
+  - **Query 5: Chargeback Impact Summary**
+    - Calculated:
+      - Total number of chargeback transactions.
+      - Number of unique affected users.
+      - Total chargeback amount.
+      - Provides a platform-level measure of chargeback risk.
+  - **Query 6: Burner Account Detection**
+    - Identified chargeback transactions from users whose account age was less than 30 days at the time of transaction.
+    - Logic filters for: status = 'chargeback', account_age >= 0 days, account_age < 30 days
+    - Expected Result: All 15 intentionally injected burner-account fraud records are detected.
+  - **Query 7: Velocity Attack Detection**
+    - Groups transactions into 10-minute time windows for each user.
+    - Flags users with multiple transactions occurring in the same short interval.
+    - Expected Result: All 8 seeded velocity-attack clusters are detected. Each cluster contains four closely spaced card transactions.
 
-Query 1: Top High-Value, High-Risk Captured Transactions
-Returned the top 10 captured transactions with risk_score >= 70.
-Results are ordered by transaction amount in descending order.
-Used to identify large, potentially risky payments.
-Query 1b: Distinct Payment Methods in High-Risk Transactions
-Returned the unique payment methods used by transactions with risk_score >= 70.
-Demonstrates usage of the DISTINCT clause.
-Query 2: Merchants with More Than Two Chargebacks
-Returned merchants having more than two chargeback transactions.
-Shows chargeback count and total chargeback amount per merchant.
-Used for identifying merchants with elevated dispute activity.
-Query 3: Chargeback Transactions with Merchant Details
-Joined chargeback transactions to merchant information.
-Displays merchant name, category, and region along with transaction details.
-Useful for investigating dispute patterns across merchant segments.
-Query 4: User Transaction Summary
-Returned all users, including users with no transactions.
-Shows transaction count and total spending per user.
-Uses a LEFT JOIN to ensure complete user coverage.
-Query 5: Chargeback Impact Summary
-Calculated:
-Total number of chargeback transactions.
-Number of unique affected users.
-Total chargeback amount.
-Provides a platform-level measure of chargeback risk.
-Query 6: Burner Account Detection
-Identified chargeback transactions from users whose account age was less than 30 days at the time of transaction.
-Logic filters for:
-status = 'chargeback'
-account_age >= 0 days
-account_age < 30 days
-Expected Result: All 15 intentionally injected burner-account fraud records are detected.
-Query 7: Velocity Attack Detection
-Groups transactions into 10-minute time windows for each user.
-Flags users with multiple transactions occurring in the same short interval.
-Expected Result: All 8 seeded velocity-attack clusters are detected. Each cluster contains four closely spaced card transactions.
+## 3. Executive Summary: Payment Reconciliation Analysis
 
+An **automated reconciliation workflow** was implemented using **Python (pandas)** to compare the **internal system ledger** against **external payment gateway export** records. The analysis processed **547 internal ledger** records against **530 gateway export* records. The automated **reconcile_payments()** function evaluates data across set-difference operations and inner-join pairwise comparisons to isolate discrepancies into four distinct categories:
+  - **Missing in Gateway** (27 transactions / 4.9% of ledger): Transactions recorded internally that are absent from the payment gateway export.
+  - **Missing in Ledger / Extra in Gateway** (10 transactions / 1.8% of ledger): Transactions present in the gateway export but unrecorded in the internal ledger.
+  - **Amount Mismatches** (16 transactions / 2.9% of ledger): Shared transactions where recorded transaction values (amount_inr) differ between sources, showing variance ranges from -100 to +100 INR.
+  - **Status Mismatches** (9 transactions / 1.6% of ledger): Shared transactions with conflicting state records, predominantly consisting of transactions marked as captured or chargeback internally but logged as failed at the gateway.
+  - ### Final Result
+      -  **Missing in gateway (present in ledger, absent from gateway):** 27  (4.9% of ledger)
+      -  **Missing in ledger (extra in gateway):**                        10  (1.8% of ledger)
+      -  **Amount mismatches:**                                           16  (2.9% of ledger)
+      -  **Status mismatches:**                                           9  (1.6% of ledger)
+        
+The reconciliation process successfully highlighted operational data gaps across both platforms.
 
-
-
-
-
-
-
-
+## 4. Dashboard Interpretations
+  
+All charts are saved as PNG images in **"dashboard_charts/"** . No chart is a live/interactive object — each is a static image, including the details table.
+  
 
 
 
