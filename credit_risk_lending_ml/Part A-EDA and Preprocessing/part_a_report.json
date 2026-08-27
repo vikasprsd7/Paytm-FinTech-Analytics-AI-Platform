@@ -1,0 +1,23 @@
+{
+  "n_rows": 400,
+  "measured_default_rate": 0.2025,
+  "pct_missing_bureau_score": 20.0,
+  "n_missing_bureau_score": 80,
+  "train_bureau_score_median_used_for_imputation": 612.0,
+  "train_rows": 300,
+  "test_rows": 100,
+  "train_default_rate": 0.2033,
+  "test_default_rate": 0.2,
+  "feature_columns": [
+    "age",
+    "monthly_income_inr",
+    "existing_loans_count",
+    "credit_utilization_ratio",
+    "upi_monthly_inflow_inr",
+    "bounced_payments_count",
+    "credit_bureau_score",
+    "is_thin_file",
+    "employment_type_salaried",
+    "employment_type_self_employed"
+  ]
+}
