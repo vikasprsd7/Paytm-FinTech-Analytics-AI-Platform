@@ -28,41 +28,116 @@ payments_fraud_analytics/
 ├── README.md                     # Project documentation
 
 ```
-## Workflow of the Project
-- **Step 1: Generate the data**
 
-  - Execute all cells in: ***generate_data.ipynb***
-  - This generates the four committed CSV files:
-    - merchants.csv
-    - users.csv
-    - ledger.csv
-    - gateway_export.csv
+# Detailed Workflow Explanation 
+## 1. Data Generation
+The synthetic data generator creates a payments ecosystem consisting of gateway_export, merchants, users, and ledger.
+- **Merchants**: The dataset contains ***40 merchants.***
+- **Users**: The dataset contains ***350 established users.***
+- **Ledger**: The dataset consists of ***547 transactions details.***
+- **gateway_export**: The dataset consists of ***deliberately-discrepant*** gateway export (~5% missing, ~3% amount-mismatched, ~2% extra, ~2% status-differing, applied on top of the 547-row ledger).
 
-  - The generator uses:
-    - random.seed(42)
-    - np.random.seed(42)
-    - Using the same seed makes the generated dataset reproducible.
+## 2. Excel Merchant Workbook
+  - The file: **merchant_workbook.xlsx** contains merchant-level payment analysis.
+  - Sheets **merchants, ledger** ***(raw data)***: Sheet ledger adds two helper columns:
+    - **txn_date (=INT(transaction_time))**
+    - **Is_First_Merchant_Day (a COUNTIFS-based 1/0 flag marking the first transaction for each merchant+day pair)** this is what lets the workbook compute **"unique days"** without needing array formulas or UNIQUE()).
+  - Sheet **Fee**: a horizontal (one-row-per-field) MDR-style fee table (payment_method across row 1, MDR Fee % across row 2).
+  - Sheet **Merchant_Day_Table**: **(the pivot table)** one row per merchant_id + txn_date combination that actually occurs in the ledger, with Total Amount and Transaction_Count columns (header starts at row 3).
+  - **Transaction_view**: one row per transaction, with the **VLOOKUP, HLOOKUP, and classification columns.
+  - **Merchant_Status**: A single combined sheet with **total amount + count by merchant × status** and the **count-vs-count-unique** comparison for all 40 merchants (well over the required minimum of 5), appended as extra columns on the same rows rather than spliting into two sheets.
 
-- **Step 2: Review the Excel workbook**
-  - Open: ***merchant_workbook.xlsx***
-  - The workbook contains merchant-level analysis, lookup demonstrations, classification logic, Pivot tables and count-versus-unique-count analysis.
- 
-- **Step 3: Create/query the database**
-  - Run the SQL recreation script: ***SQL-Fraud Detection.sql***
+- ### Design Decisions
+  - **VLOOKUP with IFERROR** (Transactions_View, Columns C–E)
+    -  Used VLOOKUP to retrieve merchant details based on merchant_id.
+    - Wrapped with IFERROR to display "Merchant not found" if no matching merchant exists.
+    - Used absolute references ($) so the lookup range remains fixed when the formula is copied down all rows.
+  - **HLOOKUP Fee Table**: Used a horizontal fee table to assign fee percentages based on payment method. And Fees are looked up automatically using HLOOKUP.
+    - Assumed rates:
+      - **UPI**: 0.50% (lowest fee)
+      - **Wallet**: 1.50%
+      - **Card**: 2.00% (highest fee)
+      - **Net banking**: 1.80%
+  - **Transaction Classification Rule**: Transactions are classified as either "High Value" or "Standard".
+    - A transaction is marked High Value when:
+      - The merchant's total daily amount is greater than ₹5,000, and
+      - The merchant is not located in the East region.
+      - Otherwise, it is classified as Standard.
+  - **Merchant Daily Total Calculation**: The daily total for each merchant is calculated using SUMIFS.
+    - The formula matches both: merchant_id,Transaction date
+    - **SUMIFS** was chosen because it can handle multiple matching conditions, unlike a standard VLOOKUP.
 
-  - The database contains the following tables:
-    - merchants
-    - users
-    - transactions
+  - **Count vs. Unique-Day Analysis**: A comparison is provided for all 40 merchants to show transaction activity.
+    - Metrics include:
+      - **Total Transaction Count:** Number of transactions for the merchant.
+      - **Unique Days Transacted:** Number of distinct days the merchant recorded transactions.
+      - **Repeat Day Ratio:** Transactions divided by unique transaction days.
+      - **Ratio close to 1 indicates little same-day repeat activity**.
+      - **Higher ratios indicate more transactions clustered on the same day**.
+      - **Unique-day counts are calculated using the Is_First_Merchant_Day helper flag, avoiding the need for UNIQUE() or COUNTUNIQUE() functions.
+  - **Formula-Based Pivot Tables**: All summary tables were built using SUMIFS and COUNTIFS formulas instead of Excel's native PivotTable feature.
+    - This approach was chosen because it works reliably with the automated workbook generation process.
+    - Formula-based summaries update automatically whenever the source data changes.
+
+## 3. SQL Query Results
+
+
+Query 1: Top High-Value, High-Risk Captured Transactions
+Returned the top 10 captured transactions with risk_score >= 70.
+Results are ordered by transaction amount in descending order.
+Used to identify large, potentially risky payments.
+Query 1b: Distinct Payment Methods in High-Risk Transactions
+Returned the unique payment methods used by transactions with risk_score >= 70.
+Demonstrates usage of the DISTINCT clause.
+Query 2: Merchants with More Than Two Chargebacks
+Returned merchants having more than two chargeback transactions.
+Shows chargeback count and total chargeback amount per merchant.
+Used for identifying merchants with elevated dispute activity.
+Query 3: Chargeback Transactions with Merchant Details
+Joined chargeback transactions to merchant information.
+Displays merchant name, category, and region along with transaction details.
+Useful for investigating dispute patterns across merchant segments.
+Query 4: User Transaction Summary
+Returned all users, including users with no transactions.
+Shows transaction count and total spending per user.
+Uses a LEFT JOIN to ensure complete user coverage.
+Query 5: Chargeback Impact Summary
+Calculated:
+Total number of chargeback transactions.
+Number of unique affected users.
+Total chargeback amount.
+Provides a platform-level measure of chargeback risk.
+Query 6: Burner Account Detection
+Identified chargeback transactions from users whose account age was less than 30 days at the time of transaction.
+Logic filters for:
+status = 'chargeback'
+account_age >= 0 days
+account_age < 30 days
+Expected Result: All 15 intentionally injected burner-account fraud records are detected.
+Query 7: Velocity Attack Detection
+Groups transactions into 10-minute time windows for each user.
+Flags users with multiple transactions occurring in the same short interval.
+Expected Result: All 8 seeded velocity-attack clusters are detected. Each cluster contains four closely spaced card transactions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
-The transaction table is linked to the other tables through declared foreign keys.
-
-- **Step 4: Run reconciliation**
-  - Execute: ***reconcile.ipynb***
-  - The reconciliation function compares: **ledger.csv** against **gateway_export.csv** using **transaction_id**.
- 
-- **Step 5: Generate dashboard charts**
-  - Run: ***Dashboard.ipynb***
-  - The notebook creates the saved dashboard images inside:
-    - ***dashboard_charts/***
-  - The details layer is saved as an image rather than being submitted as a live or printed DataFrame.
