@@ -20,7 +20,7 @@ The project is implemented using Google Colab, with each notebook corresponding 
   - Classification_models.ipynb
   - Anomaly_detection_and_optional_segmentation.ipynb
 
-Each component is fully standalone. Figures, charts, and result tables are saved to the directory.
+Each component is fully standalone. Figures, charts, and result tables are saved to the directory **`credit_risk_lending_ml/Part A-EDA and Preprocessing`,`credit_risk_lending_ml/Part B-Classification models`, `credit_risk_lending_ml/Part C-Anomaly detection`** respectively.
 
 ## Part A — EDA and Pre-processing
 
