@@ -1,0 +1,59 @@
+{
+  "metrics": [
+    {
+      "Model": "Logistic Regression",
+      "Accuracy": 0.76,
+      "Precision": 0.3889,
+      "Recall": 0.35,
+      "F1": 0.3684,
+      "ROC_AUC": 0.7188,
+      "TN": 69,
+      "FP": 11,
+      "FN": 13,
+      "TP": 7
+    },
+    {
+      "Model": "Decision Tree",
+      "Accuracy": 0.65,
+      "Precision": 0.2222,
+      "Recall": 0.3,
+      "F1": 0.2553,
+      "ROC_AUC": 0.5188,
+      "TN": 59,
+      "FP": 21,
+      "FN": 14,
+      "TP": 6
+    }
+  ],
+  "pricing_table": [
+    {
+      "risk_tier": "Tier 1 (Lowest risk)",
+      "n_applicants": 25,
+      "avg_predicted_prob": 0.0201,
+      "observed_default_rate": 0.08,
+      "illustrative_rate_range": "9% - 12%"
+    },
+    {
+      "risk_tier": "Tier 2 (Low-Med risk)",
+      "n_applicants": 25,
+      "avg_predicted_prob": 0.073,
+      "observed_default_rate": 0.12,
+      "illustrative_rate_range": "13% - 17%"
+    },
+    {
+      "risk_tier": "Tier 3 (Med-High risk)",
+      "n_applicants": 25,
+      "avg_predicted_prob": 0.2341,
+      "observed_default_rate": 0.2,
+      "illustrative_rate_range": "18% - 24%"
+    },
+    {
+      "risk_tier": "Tier 4 (Highest risk)",
+      "n_applicants": 25,
+      "avg_predicted_prob": 0.587,
+      "observed_default_rate": 0.4,
+      "illustrative_rate_range": "25% - 32%"
+    }
+  ],
+  "pricing_monotonic": true
+}
