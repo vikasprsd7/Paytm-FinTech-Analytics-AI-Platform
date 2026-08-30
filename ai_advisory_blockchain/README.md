@@ -16,9 +16,9 @@ This is a project I built designing an **agentic AI-style toolkit** for a fintec
 | `dcf_calculator.py`       | Performs a DCF valuation, including a sensitivity table and EV/EBITDA cross-check.                            |
 | `blockchain_risk_note.md` | A written analysis of crypto and DeFi risks for Paytm Money.                                                  |
 
-## How the "reasoning" works
+## How the "Reasoning" works
 
-Although some parts are described as "agents," the project does **not actually use an AI model**.
+Although some parts are described as "Agents," the project does **not actually use an AI model**.
 
 All reasoning-style steps are implemented using standard Python. The narrative outputs are generated with **f-string templates**, while the disclosure analysis uses **keyword and regex-based rules**.
 
@@ -49,7 +49,6 @@ The agent first checks the investor's risk tolerance and selects three stocks us
   * **Moderate:** PAYRETAIL, PAYINFRA, PAYGOLD — equal allocation
   * **Aggressive:** PAYTECH, PAYFIN, PAYINFRA — equal allocation
 
-This stock-selection rule was provided as part of the exercise rather than being something I designed.
 
 ### 2. Act
 
@@ -63,13 +62,13 @@ The agent then calculates:
 
 * **Expected portfolio return** using CAPM:
 
-`E(R) = risk-free rate + beta × (market return - risk-free rate)`
+**`E(R) = risk-free rate + beta × (market return - risk-free rate)`**
 
 The three stocks are equally weighted.
 
 * **Portfolio risk** using the standard weighted portfolio variance formula, assuming a **0.3 correlation** between every pair of stocks.
 
-Finally, there is a simple human-escalation rule: if portfolio standard deviation is **above 20%**, the system does not automatically finalize the recommendation. Instead, it returns `ESCALATED_TO_HUMAN_ADVISOR`.
+Finally, there is a simple human-escalation rule: if portfolio standard deviation is **above 20%**, the system does not automatically finalize the recommendation. Instead, it returns **`ESCALATED_TO_HUMAN_ADVISOR`**.
 
 ### Results for all five investors
 
@@ -140,7 +139,7 @@ The model:
 
 1. Calculates base **FCFF** using:
 
-`EBIT × (1 - tax rate) + D&A - CapEx - ΔNWC`
+**`EBIT × (1 - tax rate) + D&A - CapEx - ΔNWC`**
 
 2. Projects FCFF for five years using a declining growth rate:
 
@@ -164,11 +163,11 @@ The DCF valuation is approximately **27% lower** than the multiple-based estimat
 
 `blockchain_risk_note.md` is a written analysis covering three areas.
 
-First, it explains what a potential **Paytm Crypto Insights** feature would need to consider before showing stablecoins and DeFi/DAO tokens to retail users. This includes clearly distinguishing stablecoin types and highlighting governance and token-unlock risks.
+**First**, it explains what a potential **Paytm Crypto Insights** feature would need to consider before showing stablecoins and DeFi/DAO tokens to retail users. This includes clearly distinguishing stablecoin types and highlighting governance and token-unlock risks.
 
-Second, it gives a specific recommendation for crypto allocation in Paytm Money. My conclusion is **zero allocation within the core advisory product**, based on factors such as the lack of traditional cash flows, unstable correlation with traditional assets, fat-tailed returns, and limitations of applying CAPM-style portfolio assumptions to crypto.
+**Second**, it gives a specific recommendation for crypto allocation in Paytm Money. My conclusion is **zero allocation within the core advisory product**, based on factors such as the lack of traditional cash flows, unstable correlation with traditional assets, fat-tailed returns, and limitations of applying CAPM-style portfolio assumptions to crypto.
 
-Third, it applies the **T.A.N.G. fraud framework — Temptation, Authority, Need, and Greed —** to two social-engineering risks relevant to a UPI, wallet, lending, and wealth platform. It also proposes a real-time bank-side control for each case.
+**Third**, it applies the **T.A.N.G. fraud framework — Temptation, Authority, Need, and Greed —** to two social-engineering risks relevant to a UPI, wallet, lending, and wealth platform. It also proposes a real-time bank-side control for each case.
 
 # Notes and Possible Improvements
 
