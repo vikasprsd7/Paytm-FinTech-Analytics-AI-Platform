@@ -1,5 +1,0 @@
-risk_tier,n_applicants,avg_predicted_prob,observed_default_rate,illustrative_rate_range
-Tier 1 (Lowest risk),25,0.0201,0.08,9% - 12%
-Tier 2 (Low-Med risk),25,0.073,0.12,13% - 17%
-Tier 3 (Med-High risk),25,0.2341,0.2,18% - 24%
-Tier 4 (Highest risk),25,0.587,0.4,25% - 32%
