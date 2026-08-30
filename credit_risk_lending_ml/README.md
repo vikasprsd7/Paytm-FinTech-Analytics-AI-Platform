@@ -20,9 +20,9 @@ The project is implemented using Google Colab, with each notebook corresponding 
   - Classification_models.ipynb
   - Anomaly_detection_and_optional_segmentation.ipynb
 
-Each component is fully standalone. Figures, charts, and result tables are saved to the directory **`credit_risk_lending_ml/Part A-EDA and Preprocessing`,`credit_risk_lending_ml/Part B-Classification models`, `credit_risk_lending_ml/Part C-Anomaly detection`** respectively.
+Each component is fully standalone. Figures, charts, and result tables are saved to the directory **`credit_risk_lending_ml/`**.
 
-## Part A — EDA and Pre-processing
+## Part A — EDA and Pre-Processing
 
 **Measured on the raw data:**
 - Rows: **400**
@@ -95,14 +95,14 @@ However, this is a sanity check on feature quality, not a standalone deployment 
 
 Even though this dataset has no explicit gender or location field, several of the included variables can act as **correlated proxies for protected attributes** in a real deployment, and that **risk doesn't go away just because the columns are literally about income or credit history**:
  
-- **`employment_type`** is a **plausible proxy:**Gig and informal work in India are concentrated among certain demographic and geographic groups. Since gig workers also show more missing bureau scores and higher modeled risk, heavily penalizing `employment_type == gig` could indirectly disadvantage these groups, even without using protected attributes directly.
+- **`employment_type`** is a **plausible proxy:** Gig and informal work in India are concentrated among certain demographic and geographic groups. Since gig workers also show more missing bureau scores and higher modeled risk, heavily penalizing `employment_type == gig` could indirectly disadvantage these groups, even without using protected attributes directly.
 - **`monthly_income_inr`** correlates with location (urban vs. rural, Tier-1 vs. Tier-3 city) and, at a population level, with gender given labor-force participation and pay gaps — so income can silently reintroduce a location- or gender-correlated signal into a model that never saw those fields.
-- **`credit_bureau_score`** itself is a proxy of a proxy: Bureau depth and score quality in India is correlated with prior formal-credit access, which is itself unevenly distributed by geography and historically by gender (women and rural applicants are disproportionately "thin-file").
+- **`credit_bureau_score`** itself is a **proxy of a proxy:** Bureau depth and score quality in India is correlated with prior formal-credit access, which is itself unevenly distributed by geography and historically by gender (women and rural applicants are disproportionately "thin-file").
   
-**Note:** that `is_thin_file` — the very flag this project engineered to be *fair to* new-to-credit applicants — is therefore also a variable to monitor for disparate impact, since it isn't evenly distributed across demographic groups either.
+**Note:** that **`is_thin_file`** — The very flag this project engineered to be *fair to* new-to-credit applicants — is therefore also a variable to monitor for disparate impact, since it isn't evenly distributed across demographic groups either.
 
 ## **Recommended Governance Step Before Going-Live** 
-Use a **maker-checker human review for declined thin-file applicants** (`is_thin_file == 1`).
+Use a **Maker-Checker Human Review for declined thin-file applicants** (`is_thin_file == 1`).
 
 This can reduce proxy-driven errors, especially where bureau scores are imputed, while creating an audit trail for monitoring potential disparities across employment or geography-related cohorts.
 
