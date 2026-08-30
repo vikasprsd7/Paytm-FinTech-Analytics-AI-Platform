@@ -1,4 +1,4 @@
-# Paytm Money — AI-Augmented FinTech Advisory & Blockchain Risk (Part 3)
+# Paytm Money — AI-Augmented FinTech Advisory & Blockchain Risk
 
 This is a project I built designing an **agentic AI-style toolkit** for a fintech advisory use case. The idea is similar to what a data or financial analyst working in a wealth-tech product might build as an initial prototype.
 
