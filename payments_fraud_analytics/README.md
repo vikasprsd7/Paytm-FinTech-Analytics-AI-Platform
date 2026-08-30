@@ -12,7 +12,7 @@ The project creates a deterministic synthetic payments dataset using **seed 42**
 
 ```text
 payments_fraud_analytics/
-├── generate_data.ipynb            # Data generator (Seed 42)
+├── generate_data.ipynb           # Data generator (Seed 42)
 ├── ledger.csv                    # Internal ledger (547 records)
 ├── users.csv                     # User registry (365 records)
 ├── merchants.csv                 # Merchant registry (40 records)
@@ -129,17 +129,3 @@ All charts are saved as PNG images in **"dashboard_charts/"** . No chart is a li
   - **Layer 2 — Trends:** Daily GMV shows significant fluctuations with no clear trend across the 30-day period. A few peak days, such as January 6 and January 11, generate nearly twice the average GMV, likely driven by several high-value transactions. Chargebacks spike on January 23, reflecting the seeded fraud patterns. With a correlation of 0.00 between daily GMV and chargeback count, chargebacks appear to occur independently of overall transaction volume.
   - **Layer 3 — Breakdown:** UPI contributes ₹158,895 (54.7%) of total GMV, exceeding the combined contribution of all other payment methods. Travel, grocery, and ecommerce lead merchant categories, while recharge lags behind. This strong dependence on UPI means any disruption to UPI processing could significantly impact overall platform GMV.
   - **Layer 4 — Details:** Seven of the top 10 merchants exceed the 1% chargeback threshold and are flagged. Merchant_027 and Merchant_029 show the highest rates at about 16–19%. This indicates chargeback risk is concentrated among high-volume merchants, while Merchant_016 and Merchant_009 remain unflagged at 0%.
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
